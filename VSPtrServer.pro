@@ -20,3 +20,16 @@ SOURCES += main.cpp \
 HEADERS += \
     json.h \
     json-forwards.h
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/release/ -lhl++
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/debug/ -lhl++
+else:unix: LIBS += -L$$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/ -lhl++
+
+INCLUDEPATH += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src
+DEPENDPATH += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/release/libhl++.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/debug/libhl++.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/release/hl++.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/debug/hl++.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/libhl++.a
