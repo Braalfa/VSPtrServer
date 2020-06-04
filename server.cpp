@@ -1,27 +1,18 @@
-#include <string>
+#include "server.h"
 
-using namespace std;
+GarbageCollector* garbageCollector = GarbageCollector::getInstance();
 
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <iostream>
-#include "json.h"
-#include <hashlibpp.h>
-#include "GarbageCollector.h"
-#include <stdio.h>
-#include <string.h>   //strlen
-#include <stdlib.h>
-#include <errno.h>
-#include <arpa/inet.h>    //close
-#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
-
-#define TRUE   1
-#define PORT 8888
-#define ADDRESS "127.0.0.1"
+Server::Server()
+{
+    password="myproyectpassword";
+    password=getmd5(password);
+    garbageCollector;
+    this->run();
+}
 
 
-Json::Value toJson(string message){
+
+Json::Value Server::toJson(string message){
     Json::Value val;
     Json::Reader reader;
     bool b = reader.parse(message, val);
@@ -30,7 +21,7 @@ Json::Value toJson(string message){
     return val;
 }
 
-void sendConnection(int socket, std::string username, std::string pass){
+void Server::sendConnection(int socket, std::string username, std::string pass){
     Json::Value root;
     Json::StreamWriterBuilder wbuilder;
     wbuilder["socket"] = socket;
@@ -46,7 +37,7 @@ void sendConnection(int socket, std::string username, std::string pass){
 }
 
 
-void manageLogin( int sd, string message, string *userName) {
+void Server::manageLogin( int sd, string message, string *userName) {
     string line;
     ifstream MyReadFile("users.txt");
 
@@ -84,7 +75,7 @@ void manageLogin( int sd, string message, string *userName) {
 
 }
 
-void manageCalls(int sd, char buffer[1024], string *user) {
+void Server::manageCalls(int sd, char buffer[1024], string *user) {
     string message;
     string command;
     int pos;
@@ -102,8 +93,24 @@ void manageCalls(int sd, char buffer[1024], string *user) {
     } else if (!user->empty()) {
         if (command == "new-vs") {
             Json::Value data = toJson(message);
-            data["type"];
-            data["data"];
+            Json::Value typeVal=data["type"];
+            Json::Value dataVal=data["data"];
+
+            void *ptr;
+            switch(typeVal.asString()){
+                case "string":
+                    ptr = *dataVal.asString();
+                case "bool":
+                    ptr = *dataVal.asBool();
+                case "double":
+                    ptr = *dataVal.asDouble();
+                case "int":
+                    ptr = *dataVal.asInt();
+                case "float":
+                    ptr = *dataVal.asFloat();
+            }
+            int id=garbageC.addNode(ptr);
+
         } else if (command == "new-ref") {
 
         } else if (command == "delete-ref") {
@@ -117,16 +124,21 @@ void manageCalls(int sd, char buffer[1024], string *user) {
 
 }
 
+void Sever::sendId(int id){
+    char message[id];
+    strcpy(id, document.c_str());
+    send(socket, message, strlen(message),0);
 
-string getmd5(string pass){
+}
+
+string Server::getmd5(string pass){
     md5wrapper md5=md5wrapper();
     pass=md5.getHashFromString(pass);
     return pass;
 }
 
-int main(int argc, char *argv[]) {
-    string password="myproyectpassword";
-    password=getmd5(password);
+int Server::run() {
+
     int opt = TRUE;
     int master_socket, addrlen, new_socket, client_socket[30],
             max_clients = 30, activity, i, valread, sd;
