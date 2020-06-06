@@ -37,6 +37,13 @@ void Server::sendConnection(int socket, std::string username, std::string pass){
 }
 
 
+void Server::sendId(int socket,int id){
+    char message[std::to_string(id) + 1];
+    strcpy(message,to_string(id));
+    send(socket, message, strlen(message),0);
+}
+
+
 void Server::manageLogin( int sd, string message, string *userName) {
     string line;
     ifstream MyReadFile("users.txt");
@@ -97,29 +104,37 @@ void Server::manageCalls(int sd, char buffer[1024], string *user) {
             Json::Value dataVal=data["data"];
 
             void *ptr;
-            switch(typeVal.asString()){
-                case "string":
-                    ptr = *dataVal.asString();
-                case "bool":
-                    ptr = *dataVal.asBool();
-                case "double":
-                    ptr = *dataVal.asDouble();
-                case "int":
-                    ptr = *dataVal.asInt();
-                case "float":
-                    ptr = *dataVal.asFloat();
+            if(typeVal.asString()=="string"){
+                    ptr = new string(dataVal.asString());
+            }else if(typeVal.asString()=="bool"){
+                    ptr = new bool(dataVal.asBool());
+            }else if(typeVal.asString()=="double"){
+                    ptr = new string(dataVal.asDouble());
+            }else if(typeVal.asString()=="int"){
+                ptr = new int(dataVal.asInt());
+            }else if(typeVal.asString()=="float"){
+                    ptr = new float(dataVal.asFloat());
             }
             int id=garbageC.addNode(ptr);
+            sendId(sd, id);
+        }else{
+            pos = message.find_first_of(";");
+            int id = std::stoi(message.substr(0, pos));
+            message.erase(0, pos + 1);
 
-        } else if (command == "new-ref") {
+            if (command == "new-ref") {
+                garbageC.addReferences(id);
 
-        } else if (command == "delete-ref") {
+            }else if (command == "delete-ref") {
+                garbageC.deleteReferences(id);
+            }else if(command == "update"){
+                pos = message.find_first_of(";");
+                string value = message.substr(0, pos);
+                message.erase(0, pos + 1);
+                garbageC.setMemory();
+            }else if(command == "get-type"){
 
-        }else if(command == "update"){
-
-        }else if(command == "get-type"){
-
-        }
+        }}
     }
 
 }

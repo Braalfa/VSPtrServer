@@ -5,6 +5,9 @@
 #ifndef VSCODEMEMORY_NODE_H
 #define VSCODEMEMORY_NODE_H
 
+#include <string>
+#include <iostream>
+using namespace std;
 
 class Node {
 private:
@@ -20,13 +23,15 @@ public:
     Node(void *dirMemory);
 
     void *getDirMemory();
-    void setDirMemory(void *dirMemory);
+    void setDirMemory(string value);
 
     int getID();
     int getReferences();
 
     void deleteReferences();
     void addReferences();
+
+    string getType();
 
 };
 

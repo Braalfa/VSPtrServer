@@ -6,6 +6,7 @@
 #include "iostream"
 
 using namespace std;
+
 Node *List::getFirst()  {
     return first;
 }
@@ -14,8 +15,7 @@ int List::addNode(void *dirMemory) {
     Node node;
     if(this->first == nullptr){
         node= this->first = new Node(dirMemory);
-    }
-    else{
+    }else{
         Node *present = this->first;
         while(present->next != nullptr){
             present = present->next;
@@ -23,7 +23,6 @@ int List::addNode(void *dirMemory) {
         node=present->next = new Node(dirMemory);
     }
     return node.getID();
-
 }
 
 void List::printList() {
@@ -85,7 +84,13 @@ void List::addReferences(int ID) {
     present.deleteReferences();
 }
 
-void List::setMemory(void *dirMemory, int ID) {
+
+string List::getType(int ID) {
     Node present = getNode(ID);
-    present.setDirMemory(dirMemory);
+    return present.getType();
+}
+
+void List::setMemory(string value, int ID) {
+    Node present = getNode(ID);
+    present.setDirMemory(value);
 }

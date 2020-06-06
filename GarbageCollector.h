@@ -26,7 +26,9 @@ public:
     void deleteReferences(int ID);
     int addNode(void* ptr);
     void addReferences(int ID);
-    void setMemory(void *dir, int ID);
+    void setMemory(string value, int ID);
+    string getType(int ID);
+
 };
 
 

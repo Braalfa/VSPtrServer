@@ -50,6 +50,9 @@ int GarbageCollector::addNode(void* ptr){
 void GarbageCollector::addReferences(int ID){
     getList()->addReferences(ID);
 }
-void GarbageCollector::setMemory(void *dir, int ID){
-    return getList()->getNode(ID).setDirMemory(dir);
+void GarbageCollector::setMemory(string value, int ID){
+    getList()->getNode(ID).setDirMemory(value);
+}
+string GarbageCollector::getType(int ID){
+    return getList()->getNode(ID).getType();
 }
