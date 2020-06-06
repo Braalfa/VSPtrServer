@@ -37,12 +37,11 @@ void Server::sendConnection(int socket, std::string username, std::string pass){
 }
 
 
-void Server::sendId(int socket,int id){
-    char message[std::to_string(id) + 1];
-    strcpy(message,to_string(id));
+void Server::sendMsg(int socket,string msg){
+    char message[msg.size() + 1];
+    strcpy(message,msg.c_str());
     send(socket, message, strlen(message),0);
 }
-
 
 void Server::manageLogin( int sd, string message, string *userName) {
     string line;
@@ -109,14 +108,14 @@ void Server::manageCalls(int sd, char buffer[1024], string *user) {
             }else if(typeVal.asString()=="bool"){
                     ptr = new bool(dataVal.asBool());
             }else if(typeVal.asString()=="double"){
-                    ptr = new string(dataVal.asDouble());
+                    ptr = new double(dataVal.asDouble());
             }else if(typeVal.asString()=="int"){
-                ptr = new int(dataVal.asInt());
+                    ptr = new int(dataVal.asInt());
             }else if(typeVal.asString()=="float"){
                     ptr = new float(dataVal.asFloat());
             }
             int id=garbageC.addNode(ptr);
-            sendId(sd, id);
+            sendMsg(sd, to_string(id));
         }else{
             pos = message.find_first_of(";");
             int id = std::stoi(message.substr(0, pos));
@@ -131,18 +130,12 @@ void Server::manageCalls(int sd, char buffer[1024], string *user) {
                 pos = message.find_first_of(";");
                 string value = message.substr(0, pos);
                 message.erase(0, pos + 1);
-                garbageC.setMemory();
+                garbageC.setMemory(value,id);
             }else if(command == "get-type"){
-
-        }}
+                sendMsg(sd,garbageC.getType(id));
+            }
+        }
     }
-
-}
-
-void Sever::sendId(int id){
-    char message[id];
-    strcpy(id, document.c_str());
-    send(socket, message, strlen(message),0);
 
 }
 

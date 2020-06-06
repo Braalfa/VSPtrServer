@@ -37,13 +37,6 @@ else:unix: LIBS += -L$$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk
 INCLUDEPATH += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src
 DEPENDPATH += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src
 
-INCLUDEPATH += . /usr/local/include/boost-1_33_1/
-macx:LIBS   += /usr/local/lib/libboost_signals-1_33_1.a  # ...your exact paths may vary
-
-LIBS += -L$$PWD/../../../Documents/boost_1_73_0/boost -lboost
-INCLUDEPATH += $$PWD/../../../Documents/boost_1_73_0/boost
-DEPENDPATH += $$PWD/../../../Documents/boost_1_73_0/boost
-
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/release/libhl++.a
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/debug/libhl++.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../Downloads/hashlibpp_0_3_4/hashlib2plus/trunk/src/release/hl++.lib

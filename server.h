@@ -38,8 +38,9 @@ public:
     void manageLogin( int sd, string message, string *userName);
     void manageCalls(int sd, char buffer[1024], string *user);
     int run();
-    void sendId(int socket,int id);
+    void sendMsg(int socket,string msg);
     Server();
+
 };
 
 #endif // SERVER_H
