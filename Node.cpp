@@ -3,42 +3,20 @@
 //
 
 #include "Node.h"
-#include <iostream>
-#include <string>
-using namespace std;
+#include "string"
+#include "iostream"
 
 using namespace std;
-
 void *Node::getDirMemory()  {
     return dirMemory;
-
 }
 
-void Node::setDirMemory(string value) {
-
-    if(typeid(&this->dirMemory).name()=="int"){
-        this->dirMemory= new int(stoi(value)) ;
-    }else if (typeid(&this->dirMemory).name() == "double") {
-        this->dirMemory= new double(stod(value)) ;
-    }else if (typeid(&this->dirMemory).name() == "float") {
-        this->dirMemory= new float(stof(value)) ;
-    }else if (typeid(&this->dirMemory).name() == "bool") {
-        if(value=="true" || value == "1"){
-            this->dirMemory= new bool(true);
-        }else{
-            this->dirMemory= new bool(false);
-        }
-    }else if (typeid(&this->dirMemory).name() == "string") {
-        this->dirMemory= &value;
-    }
+void Node::setDirMemory(void *dirMemory) {
+    this->dirMemory = dirMemory;
 }
 
 int Node::getReferences() {
     return this->references;
-}
-
-string Node::getType(){
-    return typeid(this->dirMemory).name();
 }
 
 void Node::deleteReferences() {
@@ -63,7 +41,9 @@ Node::Node(void *dirMemory) {
 
 int Node::generateID() {
     static int i;
-    return ++i;
+    i = i+1;
+    int y= i;
+    return y;
 }
 
 int Node::getID() {

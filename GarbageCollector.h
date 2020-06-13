@@ -5,30 +5,40 @@
 #ifndef VSCODEMEMORY_GARBAGECOLLECTOR_H
 #define VSCODEMEMORY_GARBAGECOLLECTOR_H
 
-#include "List.h"
 
+#include "List.h"
+#
+/*
+ * Aqui arriba va la clase sujeto del GarbageCollector, pero me puse a programar esa lista de mierda.
+ *
+ */
 
 using namespace std;
+#include <string>
 
 
+
+enum GarbageType {
+    Local,    Remote
+};
 
 class GarbageCollector
 {
-private:
-
-    static GarbageCollector *instance;
-    List *listGarbageCollector = new List();
-public:
+protected:
     GarbageCollector();
-    List * getList();
-    static GarbageCollector* getInstance();
-    void threadRun() ;
-    void deleteReferences(int ID);
-    int addNode(void* ptr);
-    void addReferences(int ID);
-    void setMemory(string value, int ID);
-    string getType(int ID);
+    static GarbageCollector *instance;
+    List *listGarbageCollector;
 
+public:
+    List * getList();
+
+    void deleteReferences(int ID);
+    void addReferences(int ID);
+    int addNode( void* ptr, string type);
+    void setMemory(void *dirMemory, int ID, string type);
+    void deleteVS(int ID);
+
+    static GarbageCollector* getInstance();
 };
 
 

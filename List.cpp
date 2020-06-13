@@ -1,28 +1,31 @@
 //
 // Created by usuario on 25/5/20.
 //
-#include "Node.cpp"
+
 #include "List.h"
 #include "iostream"
 
 using namespace std;
+
 
 Node *List::getFirst()  {
     return first;
 }
 
 int List::addNode(void *dirMemory) {
-    Node node;
     if(this->first == nullptr){
-        node= this->first = new Node(dirMemory);
-    }else{
+        this->first = new Node(dirMemory);
+        return this->first->getID();
+    }
+    else{
         Node *present = this->first;
         while(present->next != nullptr){
             present = present->next;
         }
-        node=present->next = new Node(dirMemory);
+        present->next = new Node(dirMemory);
+        return present->next->getID();
+
     }
-    return node.getID();
 }
 
 void List::printList() {
@@ -62,7 +65,7 @@ void List::deleteNode(int ID) {
 }
 
 
-Node List::getNode(int ID) {
+Node* List::getNode(int ID) {
     Node *present = this->first;
     while (present != nullptr){
         if(present->getID() == ID){
@@ -70,27 +73,20 @@ Node List::getNode(int ID) {
         } else{
             present = present->next;
         }
-        exit(1);
     }
 }
 
 void List::deleteReferences(int ID) {
-    Node present = getNode(ID);
-    present.addReferences();
+    Node* present = getNode(ID);
+    present->deleteReferences();
 }
 
 void List::addReferences(int ID) {
-    Node present = getNode(ID);
-    present.deleteReferences();
+    Node* present = getNode(ID);
+    present->addReferences();
 }
 
-
-string List::getType(int ID) {
-    Node present = getNode(ID);
-    return present.getType();
-}
-
-void List::setMemory(string value, int ID) {
-    Node present = getNode(ID);
-    present.setDirMemory(value);
+void List::setMemory(void *dirMemory, int ID) {
+    Node* present = getNode(ID);
+    present->setDirMemory(dirMemory);
 }

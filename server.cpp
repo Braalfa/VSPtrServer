@@ -1,13 +1,27 @@
 #include "server.h"
-
-GarbageCollector* garbageCollector = GarbageCollector::getInstance();
+#include "hl_md5.h"
+#include "hl_md5wrapper.h"
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <iostream>
+#include "json.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <arpa/inet.h>    //close
+#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
+#include <fstream>
+#include "GarbageCollector.h"
+#define TRUE   1
+#define PORT 8888
+#define ADDRESS "127.0.0.1"
 
 Server::Server()
 {
     password="myproyectpassword";
     password=getmd5(password);
-    garbageCollector;
-    this->run();
 }
 
 
@@ -23,14 +37,15 @@ Json::Value Server::toJson(string message){
 
 void Server::sendConnection(int socket, std::string username, std::string pass){
     Json::Value root;
-    Json::StreamWriterBuilder wbuilder;
-    wbuilder["socket"] = socket;
-    wbuilder["ip"] = ADDRESS;
-    wbuilder["port"] = PORT;
-    wbuilder["username"] = username;
-    wbuilder["password"] = pass;
+    root["socket"] = socket;
+    root["ip"] = ADDRESS;
+    root["port"] = PORT;
+    root["username"] = username;
+    root["password"] = pass;
 
-    std::string document = Json::writeString(wbuilder, root);
+    Json::FastWriter fastwriter;
+    std::string document = fastwriter.write(root);
+
     char message[document.size() + 1];
     strcpy(message, document.c_str());
     send(socket, message, strlen(message),0);
@@ -50,10 +65,10 @@ void Server::manageLogin( int sd, string message, string *userName) {
     int pos = message.find_first_of(";");
     string clientUser = message.substr(0, pos);
     message.erase(0, pos + 1);
-    string clientPassword = message;
+    pos = message.find_first_of(";");
+    string clientPassword = message.substr(0, pos);
 
     string user;
-    string password;
 
     if (password == clientPassword) {
         bool userFound = false;
@@ -72,7 +87,7 @@ void Server::manageLogin( int sd, string message, string *userName) {
         if (!userFound) {
             std::ofstream outfile;
             outfile.open("users.txt", std::ios_base::app);
-            outfile << clientUser;
+            outfile << clientUser+";";
             *userName = clientUser;
         }
     } else {
@@ -91,48 +106,65 @@ void Server::manageCalls(int sd, char buffer[1024], string *user) {
     message.erase(0, pos + 1);
 
 
-    pos = message.find_first_of(";");
-    string clientUser = message.substr(0, pos);
-
     if (command == "log-in") {
         manageLogin(sd, message, user);
     } else if (!user->empty()) {
+
         if (command == "new-vs") {
-            Json::Value data = toJson(message);
+            pos = message.find_first_of(";");
+            string json = message.substr(0, pos);
+            message.erase(0, pos + 1);
+
+            Json::Value data = toJson(json);
             Json::Value typeVal=data["type"];
             Json::Value dataVal=data["data"];
 
-            void *ptr;
-            if(typeVal.asString()=="string"){
-                    ptr = new string(dataVal.asString());
-            }else if(typeVal.asString()=="bool"){
-                    ptr = new bool(dataVal.asBool());
-            }else if(typeVal.asString()=="double"){
-                    ptr = new double(dataVal.asDouble());
-            }else if(typeVal.asString()=="int"){
-                    ptr = new int(dataVal.asInt());
-            }else if(typeVal.asString()=="float"){
-                    ptr = new float(dataVal.asFloat());
-            }
-            int id=garbageC.addNode(ptr);
+            void *ptr= nullptr;
+            int id=GarbageCollector::getInstance()->addNode(ptr, typeVal.asString());
+
             sendMsg(sd, to_string(id));
+
         }else{
+
             pos = message.find_first_of(";");
             int id = std::stoi(message.substr(0, pos));
             message.erase(0, pos + 1);
 
             if (command == "new-ref") {
-                garbageC.addReferences(id);
-
+                GarbageCollector::getInstance()->addReferences(id);
             }else if (command == "delete-ref") {
-                garbageC.deleteReferences(id);
+                int references = GarbageCollector::getInstance()->getList()->getNode(id)->getReferences()-1;
+                GarbageCollector::getInstance()->deleteReferences(id);
+                sendMsg(sd, to_string(references==0));
             }else if(command == "update"){
+
                 pos = message.find_first_of(";");
-                string value = message.substr(0, pos);
+                string json = message.substr(0, pos);
                 message.erase(0, pos + 1);
-                garbageC.setMemory(value,id);
-            }else if(command == "get-type"){
-                sendMsg(sd,garbageC.getType(id));
+
+                Json::Value data = toJson(json);
+                Json::Value typeVal=data["type"];
+                Json::Value dataVal=data["data"];
+
+                void *ptr = nullptr;
+                if(typeVal.asString()=="string"){
+                    ptr = new string(dataVal.asString());
+                }else if(typeVal.asString()=="b"){
+                    ptr = new bool(dataVal.asString() == "true");
+                }else if(typeVal.asString()=="d"){
+                    ptr = new double(stod(dataVal.asString()));
+                }else if(typeVal.asString()=="i"){
+                    ptr = new int(stoi(dataVal.asString()));
+                }else if(typeVal.asString()=="f"){
+                    ptr = new float(stof(dataVal.asString()));
+                }
+                GarbageCollector::getInstance()->setMemory(ptr,id,typeVal.asString());
+
+                std::ostringstream addressh;
+                addressh<< ptr;
+                string address = addressh.str();
+
+                sendMsg(sd, address);
             }
         }
     }
@@ -292,6 +324,4 @@ int Server::run() {
             }
         }
     }
-
-    return 0;
 }
