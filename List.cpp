@@ -3,8 +3,6 @@
 //
 
 #include "List.h"
-
-#include <utility>
 #include "iostream"
 
 using namespace std;
@@ -16,7 +14,7 @@ Node *List::getFirst()  {
 
 int List::addNode(void *dirMemory, string type) {
     if(this->first == nullptr){
-        this->first = new Node(dirMemory, std::move(type));
+        this->first = new Node(dirMemory, type);
         return this->first->getID();
     }
     else{
@@ -24,7 +22,7 @@ int List::addNode(void *dirMemory, string type) {
         while(present->next != nullptr){
             present = present->next;
         }
-        present->next = new Node(dirMemory, std::move(type));
+        present->next = new Node(dirMemory, type);
         return present->next->getID();
 
     }

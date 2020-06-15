@@ -9,6 +9,7 @@
 #include "iostream"
 
 GarbageCollector* GarbageCollector::instance = 0;
+std::mutex GarbageCollector::mutex ;
 
 GarbageCollector::GarbageCollector(){
     listGarbageCollector= new List;
@@ -27,6 +28,7 @@ GarbageCollector* GarbageCollector::getInstance()
 }
 
 List * GarbageCollector::getList() {
+    mutex.lock();
     return this->listGarbageCollector;
 }
 
@@ -35,15 +37,20 @@ List * GarbageCollector::getList() {
 
 void GarbageCollector::deleteReferences(int ID){
     getList()->deleteReferences(ID);
+    mutex.unlock();
+
 };
 void GarbageCollector::addReferences(int ID){
-    getList()->addReferences(ID);
-    getList()->printList();
+    List* l= getList();
+    l->addReferences(ID);
+    l->printList();
+    mutex.unlock();
 
 };
 
 int GarbageCollector::addNode( void* ptr, string type){
     int id =getList()->addNode(ptr, type);
+    mutex.unlock();
     return id;
 };
 
@@ -63,17 +70,19 @@ void GarbageCollector::setMemory(void *dirMemory, int ID, string theType){
         value = *static_cast<std::string*>(dirMemory);
     }
     getList()->getNode(ID)->setDirMemory(dirMemory);
+    mutex.unlock();
+
     std::ostringstream addressh;
     addressh<< dirMemory;
     address = addressh.str();
 
 };
 
-void GarbageCollector::deleteVS(int ID){
+void GarbageCollector::deleteVS(int ID, List* l){
     string id = to_string(ID);
-    string theType = getList()->getNode(ID)->getType();
+    string theType = l->getNode(ID)->getType();
 
-    void* dirMemory= getList()->getNode(ID)->getDirMemory();
+    void* dirMemory= l->getNode(ID)->getDirMemory();
     if(theType=="b"){
         delete (static_cast<bool*>(dirMemory));
     }else if(theType=="d"){
@@ -86,20 +95,24 @@ void GarbageCollector::deleteVS(int ID){
         delete static_cast<std::string*>(dirMemory);
     }
 
-    getList()->deleteNode(ID);
+    l->deleteNode(ID);
 }
 
 
 [[noreturn]] void GarbageCollector::threadRun() {
-    Node *present = getList()->getFirst();
+    List *l=  getList();
+    Node *present = l->getFirst();
     while(true){
         while (present != nullptr) {
             if (present->getReferences() == 0) {
-                deleteVS(present->getID());
+                deleteVS(present->getID(), l);
+                present = l->getFirst();
+            } else{
+                present = present->next;
             }
-            present = present->next;
         }
+        mutex.unlock();
+        this_thread::sleep_for (chrono::milliseconds (50));
         present = getList()->getFirst();
-        this_thread::sleep_for (chrono::milliseconds (250));
     }
 };

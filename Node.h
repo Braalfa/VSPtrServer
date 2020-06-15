@@ -4,16 +4,17 @@
 
 #ifndef VSCODEMEMORY_NODE_H
 #define VSCODEMEMORY_NODE_H
+
 using namespace std;
 #include "string"
 
 class Node {
 private:
-
     void* dirMemory ;
     int references;
     int ID;
     string type;
+
 public:
     static int generateID();
 
@@ -32,7 +33,6 @@ public:
 
     void setType(string type);
     string getType();
-
 
 };
 

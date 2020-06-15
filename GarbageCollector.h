@@ -15,7 +15,7 @@
 
 using namespace std;
 #include <string>
-
+#include <mutex>
 
 
 enum GarbageType {
@@ -32,6 +32,7 @@ protected:
 public:
     List * getList();
 
+    static std::mutex mutex;
     void deleteReferences(int ID);
     void addReferences(int ID);
     int addNode( void* ptr, string type);
@@ -40,6 +41,7 @@ public:
     static GarbageCollector* getInstance();
     [[noreturn]] void threadRun();
 
+    void deleteVS(int ID, List *l);
 };
 
 

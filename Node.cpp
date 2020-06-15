@@ -13,6 +13,9 @@ void *Node::getDirMemory()  {
 
 void Node::setDirMemory(void *dirMemory) {
     this->dirMemory = dirMemory;
+    cout<<this->dirMemory<<endl;
+    cout<<this->ID<<endl;
+
 }
 
 int Node::getReferences() {
@@ -37,7 +40,7 @@ Node::Node(void *dirMemory, string type) {
     this->dirMemory = dirMemory;
     this->ID = generateID();
     this->references = 1;
-    this->type=type;
+    this->type= type;
 }
 
 int Node::generateID() {
