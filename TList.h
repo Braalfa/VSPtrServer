@@ -14,6 +14,9 @@
 #include <string>
 using namespace std;
 
+/**
+ * Clase lista para valores string
+ */
 class TList
 {
 private:

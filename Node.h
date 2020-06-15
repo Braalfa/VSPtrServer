@@ -8,6 +8,9 @@
 using namespace std;
 #include "string"
 
+/**
+ * La clase Nodo almacena direcciones de memoria y el dato alli encontrado
+ */
 class Node {
 private:
     void* dirMemory ;

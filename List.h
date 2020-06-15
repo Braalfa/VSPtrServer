@@ -7,7 +7,10 @@
 
 #include "Node.h"
 
-
+/**
+ * La lista se encarga de almacenar la informacion de las direcciones de memoria para el Garbage
+ * Collector
+ */
 class List {
     Node *first;
 public:

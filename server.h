@@ -22,10 +22,11 @@ using namespace std;
 #define PORT 8888
 #define ADDRESS "127.0.0.1"
 
-
+/**
+ * Clase Server para manejar las solicitudes del cliente
+ */
 class Server
 {
-
 private:
     Json::Value toJson(string message);
     string getmd5(string pass);

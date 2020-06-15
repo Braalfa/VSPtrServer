@@ -34,6 +34,7 @@ public:
 
     static std::mutex mutex;
     void deleteReferences(int ID);
+    int getReferences(int ID);
     void addReferences(int ID);
     int addNode( void* ptr, string type);
     void setMemory(void *dirMemory, int ID, string type);

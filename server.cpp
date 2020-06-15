@@ -18,6 +18,10 @@
 #define PORT 8888
 #define ADDRESS "127.0.0.1"
 
+
+/**
+ * Clase constructor del servidor en la cual se establece la contrasena de este
+ */
 Server::Server()
 {
     password="myproyectpassword";
@@ -25,7 +29,11 @@ Server::Server()
 }
 
 
-
+/**
+ * Transforma un string en un Json Value
+ * @param message String a convertir
+ * @return Json Value del Message
+ */
 Json::Value Server::toJson(string message){
     Json::Value val;
     Json::Reader reader;
@@ -35,6 +43,12 @@ Json::Value Server::toJson(string message){
     return val;
 }
 
+/**
+ * Envia los detalles de conexion al cliente
+ * @param socket Numero de cliente
+ * @param username Nombre de Usuario
+ * @param pass Contrasena encriptada
+ */
 void Server::sendConnection(int socket, std::string username, std::string pass){
     Json::Value root;
     root["socket"] = socket;
@@ -51,13 +65,23 @@ void Server::sendConnection(int socket, std::string username, std::string pass){
     send(socket, message, strlen(message),0);
 }
 
-
+/**
+ * Metodo para enviar mensajes al cliente
+ * @param socket Numero de cliente
+ * @param msg Mensaje
+ */
 void Server::sendMsg(int socket,string msg){
     char message[msg.size() + 1];
     strcpy(message,msg.c_str());
     send(socket, message, strlen(message),0);
 }
 
+/**
+ * Metodo para autenticar la conexion
+ * @param sd Numero de cliente
+ * @param message Comunicacion desde el cliente
+ * @param userName Nombre de usuario
+ */
 void Server::manageLogin( int sd, string message, string *userName) {
     string line;
     ifstream MyReadFile("users.txt");
@@ -98,6 +122,13 @@ void Server::manageLogin( int sd, string message, string *userName) {
 
 }
 
+
+/**
+ * Metodo para decidir como proceder al recibir comunicacion
+ * @param sd Numero de cliente
+ * @param buffer Mensaje recibido
+ * @param user Nombre del usuario
+ */
 void Server::manageCalls(int sd, char buffer[1024], string *user) {
     string message;
     string command;
@@ -134,8 +165,9 @@ void Server::manageCalls(int sd, char buffer[1024], string *user) {
 
             if (command == "new-ref") {
                 GarbageCollector::getInstance()->addReferences(id);
+                sendMsg(sd, "hello");
             }else if (command == "delete-ref") {
-                int references = GarbageCollector::getInstance()->getList()->getNode(id)->getReferences()-1;
+                int references = GarbageCollector::getInstance()->getReferences(id)-1;
                 GarbageCollector::getInstance()->deleteReferences(id);
                 sendMsg(sd, to_string(references==0));
             }else if(command == "update"){
@@ -173,12 +205,20 @@ void Server::manageCalls(int sd, char buffer[1024], string *user) {
 
 }
 
+/**
+ * Metodo para obtener el hash md5 de la contrasena
+ * @param pass Contrasena no encriptada
+ * @return Contrasena encriptada
+ */
 string Server::getmd5(string pass){
     md5wrapper md5=md5wrapper();
     pass=md5.getHashFromString(pass);
     return pass;
 }
-
+/**
+ * Metodo para hacer correr el servidor
+ * @return
+ */
 int Server::run() {
 
     int opt = TRUE;

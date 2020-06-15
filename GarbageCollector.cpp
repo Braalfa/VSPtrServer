@@ -41,12 +41,16 @@ void GarbageCollector::deleteReferences(int ID){
 
 };
 void GarbageCollector::addReferences(int ID){
-    List* l= getList();
-    l->addReferences(ID);
-    l->printList();
+    getList()->addReferences(ID);
     mutex.unlock();
 
 };
+
+int GarbageCollector::getReferences(int ID) {
+    int references = GarbageCollector::getInstance()->getList()->getNode(ID)->getReferences();
+    mutex.unlock();
+    return references;
+}
 
 int GarbageCollector::addNode( void* ptr, string type){
     int id =getList()->addNode(ptr, type);
