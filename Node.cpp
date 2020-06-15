@@ -32,11 +32,12 @@ Node::Node() {
     next = nullptr;
 }
 
-Node::Node(void *dirMemory) {
+Node::Node(void *dirMemory, string type) {
     next = nullptr;
     this->dirMemory = dirMemory;
     this->ID = generateID();
     this->references = 1;
+    this->type=type;
 }
 
 int Node::generateID() {
@@ -48,4 +49,11 @@ int Node::generateID() {
 
 int Node::getID() {
     return this->ID;
+}
+
+void Node::setType(string type){
+    this->type= type;
+}
+string Node::getType(){
+    return this->type;
 }

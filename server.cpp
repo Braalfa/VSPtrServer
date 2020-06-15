@@ -89,6 +89,8 @@ void Server::manageLogin( int sd, string message, string *userName) {
             outfile.open("users.txt", std::ios_base::app);
             outfile << clientUser+";";
             *userName = clientUser;
+            sendConnection(sd, clientUser, password);
+
         }
     } else {
         send(sd, "connection failed",17,0);

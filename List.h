@@ -13,7 +13,7 @@ class List {
 public:
     Node *getFirst();
     List();
-    int addNode(void *dirMemory);
+    int addNode(void *dirMemory, string type);
     void setMemory(void *dirMemory, int ID);
     void deleteNode(int ID);
     Node* getNode(int ID);

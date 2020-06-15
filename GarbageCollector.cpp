@@ -3,6 +3,8 @@
 //
 
 #include <sstream>
+#include <chrono>
+#include <thread>
 #include "GarbageCollector.h"
 #include "iostream"
 
@@ -18,6 +20,8 @@ GarbageCollector* GarbageCollector::getInstance()
     if (instance == 0)
     {
         instance = new GarbageCollector;
+        std::thread first(&GarbageCollector::threadRun, instance);
+        first.detach();
     }
     return instance;
 }
@@ -31,16 +35,15 @@ List * GarbageCollector::getList() {
 
 void GarbageCollector::deleteReferences(int ID){
     getList()->deleteReferences(ID);
-    if (getList()->getNode(ID)->getReferences()==0) {
-        deleteVS(ID);
-    }
 };
 void GarbageCollector::addReferences(int ID){
     getList()->addReferences(ID);
+    getList()->printList();
+
 };
 
 int GarbageCollector::addNode( void* ptr, string type){
-    int id =getList()->addNode(ptr);
+    int id =getList()->addNode(ptr, type);
     return id;
 };
 
@@ -68,6 +71,35 @@ void GarbageCollector::setMemory(void *dirMemory, int ID, string theType){
 
 void GarbageCollector::deleteVS(int ID){
     string id = to_string(ID);
-    delete(getList()->getNode(ID)->getDirMemory());
+    string theType = getList()->getNode(ID)->getType();
+
+    void* dirMemory= getList()->getNode(ID)->getDirMemory();
+    if(theType=="b"){
+        delete (static_cast<bool*>(dirMemory));
+    }else if(theType=="d"){
+        delete static_cast<double*>(dirMemory);;
+    }else if(theType=="i"){
+        delete static_cast<int*>(dirMemory);
+    }else if(theType=="f"){
+        delete static_cast<float*>(dirMemory);
+    }else{
+        delete static_cast<std::string*>(dirMemory);
+    }
+
     getList()->deleteNode(ID);
 }
+
+
+[[noreturn]] void GarbageCollector::threadRun() {
+    Node *present = getList()->getFirst();
+    while(true){
+        while (present != nullptr) {
+            if (present->getReferences() == 0) {
+                deleteVS(present->getID());
+            }
+            present = present->next;
+        }
+        present = getList()->getFirst();
+        this_thread::sleep_for (chrono::milliseconds (250));
+    }
+};

@@ -37,8 +37,9 @@ public:
     int addNode( void* ptr, string type);
     void setMemory(void *dirMemory, int ID, string type);
     void deleteVS(int ID);
-
     static GarbageCollector* getInstance();
+    [[noreturn]] void threadRun();
+
 };
 
 
