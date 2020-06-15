@@ -22,6 +22,11 @@ enum GarbageType {
     Local,    Remote
 };
 
+/**
+ * El garbage collector remoto es la clase que maneja la memoria en el servidor remoto, creando
+ * punteros con los datos a almacenar y generando operaciones en estos, ademas de retornando informacion
+ * valiosa
+ * */
 class GarbageCollector
 {
 protected:
